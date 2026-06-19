@@ -1,0 +1,247 @@
+{
+  "project": "No 4, Dhanakodiammal Street, Kodambakkam",
+  "drawing": "M-101 R0 (Column Marking Layout)",
+  "grid_X": {
+    "A": 0,
+    "B": 5.625,
+    "C": 11.375,
+    "D": 24.25
+  },
+  "grid_Y_rows_ft": [
+    0,
+    14.5,
+    29.75,
+    34.25,
+    38.75,
+    41.125,
+    43.375,
+    57.125,
+    59.125,
+    78.5,
+    92.5,
+    96.0
+  ],
+  "storey": "Stilt + 3 @ 10ft",
+  "columns": [
+    {
+      "tag": "A1",
+      "grid_line": "A",
+      "row": 1,
+      "x_ft_from_gridA": 0.01,
+      "z_ft_from_row1": 0,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "C1",
+      "grid_line": "C",
+      "row": 1,
+      "x_ft_from_gridA": 11.39,
+      "z_ft_from_row1": 0,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "D1",
+      "grid_line": "D",
+      "row": 1,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 0,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "A2",
+      "grid_line": "A",
+      "row": 2,
+      "x_ft_from_gridA": 0.01,
+      "z_ft_from_row1": 14.5,
+      "width_X": "9\"",
+      "depth_Z": "2'-0\"",
+      "width_mm": 229,
+      "depth_mm": 610
+    },
+    {
+      "tag": "D2",
+      "grid_line": "D",
+      "row": 2,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 14.5,
+      "width_X": "9\"",
+      "depth_Z": "2'-0\"",
+      "width_mm": 229,
+      "depth_mm": 610
+    },
+    {
+      "tag": "D3",
+      "grid_line": "D",
+      "row": 3,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 29.75,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "A4",
+      "grid_line": "A",
+      "row": 4,
+      "x_ft_from_gridA": 0.39,
+      "z_ft_from_row1": 34.25,
+      "width_X": "1'-6\"",
+      "depth_Z": "9\"",
+      "width_mm": 457,
+      "depth_mm": 229
+    },
+    {
+      "tag": "B4",
+      "grid_line": "B",
+      "row": 4,
+      "x_ft_from_gridA": 5.64,
+      "z_ft_from_row1": 34.25,
+      "width_X": "1'-6\"",
+      "depth_Z": "9\"",
+      "width_mm": 457,
+      "depth_mm": 229
+    },
+    {
+      "tag": "C4",
+      "grid_line": "C",
+      "row": 4,
+      "x_ft_from_gridA": 11.76,
+      "z_ft_from_row1": 34.63,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "D5",
+      "grid_line": "D",
+      "row": 5,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 38.75,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "A6",
+      "grid_line": "A",
+      "row": 6,
+      "x_ft_from_gridA": 0.39,
+      "z_ft_from_row1": 41,
+      "width_X": "1'-6\"",
+      "depth_Z": "9\"",
+      "width_mm": 457,
+      "depth_mm": 229
+    },
+    {
+      "tag": "B6",
+      "grid_line": "B",
+      "row": 6,
+      "x_ft_from_gridA": 5.64,
+      "z_ft_from_row1": 41,
+      "width_X": "1'-6\"",
+      "depth_Z": "9\"",
+      "width_mm": 457,
+      "depth_mm": 229
+    },
+    {
+      "tag": "C7",
+      "grid_line": "C",
+      "row": 7,
+      "x_ft_from_gridA": 11.76,
+      "z_ft_from_row1": 43.37,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "C8",
+      "grid_line": "C",
+      "row": 8,
+      "x_ft_from_gridA": 11.76,
+      "z_ft_from_row1": 56.75,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "A8",
+      "grid_line": "A",
+      "row": 8,
+      "x_ft_from_gridA": 0.39,
+      "z_ft_from_row1": 57.12,
+      "width_X": "1'-6\"",
+      "depth_Z": "9\"",
+      "width_mm": 457,
+      "depth_mm": 229
+    },
+    {
+      "tag": "D9",
+      "grid_line": "D",
+      "row": 9,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 59.13,
+      "width_X": "9\"",
+      "depth_Z": "1'-6\"",
+      "width_mm": 229,
+      "depth_mm": 457
+    },
+    {
+      "tag": "A10",
+      "grid_line": "A",
+      "row": 10,
+      "x_ft_from_gridA": 0.01,
+      "z_ft_from_row1": 78.5,
+      "width_X": "9\"",
+      "depth_Z": "2'-0\"",
+      "width_mm": 229,
+      "depth_mm": 610
+    },
+    {
+      "tag": "D10",
+      "grid_line": "D",
+      "row": 10,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 78.5,
+      "width_X": "9\"",
+      "depth_Z": "2'-0\"",
+      "width_mm": 229,
+      "depth_mm": 610
+    },
+    {
+      "tag": "D11",
+      "grid_line": "D",
+      "row": 11,
+      "x_ft_from_gridA": 24.26,
+      "z_ft_from_row1": 92.5,
+      "width_X": "9\"",
+      "depth_Z": "2'-0\"",
+      "width_mm": 229,
+      "depth_mm": 610
+    },
+    {
+      "tag": "A12",
+      "grid_line": "A",
+      "row": 12,
+      "x_ft_from_gridA": 0.01,
+      "z_ft_from_row1": 96,
+      "width_X": "9\"",
+      "depth_Z": "2'-0\"",
+      "width_mm": 229,
+      "depth_mm": 610
+    }
+  ]
+}
