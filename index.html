@@ -311,11 +311,38 @@ const beamGroup=new TH.Group(); scene.add(beamGroup);
 const floorGroup=new TH.Group(); scene.add(floorGroup);
 const roofGroup=new TH.Group(); scene.add(roofGroup);
 const roofHighlightGroup=new TH.Group(); scene.add(roofHighlightGroup);
+const wallGroup=new TH.Group(); scene.add(wallGroup);
 const levelGroup=new TH.Group(); scene.add(levelGroup);
 
 let storeyHt=10, storeys=4, firstBuild=true;
 const beamMat=new TH.MeshStandardMaterial({color:'#928c80',roughness:.85,metalness:.02});
 const roofMat=new TH.MeshStandardMaterial({color:'#a9a395',roughness:.9});
+const brickMat=(function(){
+  const s=256;
+  const c=document.createElement('canvas');
+  c.width=c.height=s;
+  const x=c.getContext('2d');
+  x.fillStyle='#7f3d2a';
+  x.fillRect(0,0,s,s);
+  x.fillStyle='#ad6a54';
+  for(let y=0;y<s;y+=32){
+    for(let i=0;i<2;i++){
+      const ox=i?32:0;
+      for(let bx=0;bx<s;bx+=64){ x.fillRect(bx+ox,y,56,16); }
+    }
+  }
+  x.strokeStyle='rgba(0,0,0,0.08)';
+  for(let y=0;y<s;y+=32){
+    for(let i=0;i<2;i++){
+      const ox=i?32:0;
+      for(let bx=0;bx<s;bx+=64){ x.strokeRect(bx+ox,y,56,16); }
+    }
+  }
+  const tex=new TH.CanvasTexture(c);
+  tex.wrapS=tex.wrapT=TH.RepeatWrapping;
+  tex.repeat.set(4,2);
+  return new TH.MeshStandardMaterial({map:tex,roughness:.85,metalness:.05});
+})();
 const roofHighlightMat=new TH.MeshStandardMaterial({color:'#d63a3a',roughness:.7,transparent:true,opacity:0.65,emissive:'#8c2020',emissiveIntensity:0.18});
 const floorMat2=new TH.MeshStandardMaterial({color:'#6f8298',transparent:true,opacity:.34,roughness:.9});
 
@@ -353,7 +380,7 @@ function makeRoof(){
 }
 
 function buildStructure(){
-  [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,roofHighlightGroup,levelGroup].forEach(clear);
+  [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,roofHighlightGroup,wallGroup,levelGroup].forEach(clear);
   const H=storeyHt*storeys;
 
   // columns (full height, with truncation on 3rd floor for selected columns)
@@ -369,6 +396,39 @@ function buildStructure(){
     colGroup.add(m);
     const tg=makeSprite(col.t,'tag'); tg.scale.set(2.2,1.0,1); tg.position.set(col.X,colHeight+1.4,col.Z); tagGroup.add(tg);
   });
+
+  // north-side perforated brick screen between row 7 and 8 (staggered lattice)
+  const wallHeight=storeys*storeyHt;
+  const zCenter=(ROWY[7]+ROWY[6])/2 - CZ;
+  const wallDepth=Math.abs(ROWY[7]-ROWY[6]) + 0.4;
+  const screenX = GX.A - CX - 0.125; // near grid A
+
+  // unit brick size (ft) — thin faces on X, short height, deeper along Z
+  const brickW = 0.25;    // wall thickness
+  const brickH = 0.5;     // brick course height (0.5 ft ≈ 6")
+  const brickD = 0.9;     // brick length along screen (Z)
+  const gapZ  = 0.15;     // horizontal gap between bricks
+  const gapY  = 0.25;     // vertical gap between courses
+
+  const cols = Math.max(3, Math.floor(wallDepth / (brickD + gapZ)));
+  const rows = Math.max(4, Math.floor(wallHeight / (brickH + gapY)));
+
+  for(let r=0; r<rows; r++){
+    const y = (brickH/2) + r*(brickH + gapY);
+    const rowOffset = (r % 2) ? (brickD/2 + gapZ/2) : 0;
+    for(let c=0; c<cols; c++){
+      // stagger pattern: alternate bricks per row to create open perforations
+      if(((r + c) % 2) === 0){
+        const z = zCenter - wallDepth/2 + rowOffset + c*(brickD + gapZ) + brickD/2;
+        // ensure brick stays within wallDepth bounds
+        if(z < zCenter - wallDepth/2 + 0.01 || z > zCenter + wallDepth/2 - 0.01) continue;
+        const b = new TH.Mesh(new TH.BoxGeometry(brickW, brickH, brickD), brickMat);
+        b.position.set(screenX, y, z);
+        b.castShadow = true; b.receiveShadow = true;
+        wallGroup.add(b);
+      }
+    }
+  }
 
   // beams at each floor level (1..storeys, where storeys = roof)
   const byLetter={}, byRow={};
