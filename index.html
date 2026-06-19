@@ -325,9 +325,7 @@ function makeBeam(ax,az,bx,bz,y,group){
 }
 function clear(g){while(g.children.length)g.remove(g.children[0]);}
 
-const roofCutouts=[
-  {x:0, z:(ROWY[0]+ROWY[1])/2-CZ, w:SLAB_W+0.6, d:Math.abs(ROWY[1]-ROWY[0])}
-];
+const roofCutouts=[];
 function makeRoof(){
   const holes=roofCutouts;
   const x0=-SLAB_W/2-0.3, x1=SLAB_W/2+0.3, z0=-SLAB_D/2-0.3, z1=SLAB_D/2+0.3;
