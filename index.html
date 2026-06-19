@@ -312,6 +312,7 @@ const floorGroup=new TH.Group(); scene.add(floorGroup);
 const roofGroup=new TH.Group(); scene.add(roofGroup);
 const roofHighlightGroup=new TH.Group(); scene.add(roofHighlightGroup);
 const wallGroup=new TH.Group(); scene.add(wallGroup);
+const elevatorGroup=new TH.Group(); scene.add(elevatorGroup);
 const levelGroup=new TH.Group(); scene.add(levelGroup);
 
 let storeyHt=10, storeys=4, firstBuild=true;
@@ -345,6 +346,7 @@ const brickMat=(function(){
 })();
 const roofHighlightMat=new TH.MeshStandardMaterial({color:'#d63a3a',roughness:.7,transparent:true,opacity:0.65,emissive:'#8c2020',emissiveIntensity:0.18});
 const floorMat2=new TH.MeshStandardMaterial({color:'#6f8298',transparent:true,opacity:.34,roughness:.9});
+const elevatorMat=new TH.MeshStandardMaterial({color:'#263238',roughness:.7,metalness:.35});
 
 function makeBeam(ax,az,bx,bz,y,group){
   const dx=bx-ax, dz=bz-az, len=Math.hypot(dx,dz); if(len<0.3) return;
@@ -380,14 +382,17 @@ function makeRoof(){
 }
 
 function buildStructure(){
-  [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,roofHighlightGroup,wallGroup,levelGroup].forEach(clear);
+  [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,roofHighlightGroup,wallGroup,elevatorGroup,levelGroup].forEach(clear);
   const H=storeyHt*storeys;
 
   // columns (full height, with truncation on 3rd floor for selected columns)
   const roofRemovedCols=new Set(['A1','C1','D1']);
+  // columns that should extend an extra 10 ft above the roof
+  const extraTallCols=new Set(['A4','A6','B4','B6','A8','C8']);
+  const extraHeight = 10; // ft beyond roof
   COLUMNS.forEach(col=>{
     const topLevel=roofRemovedCols.has(col.t)?3:storeys;
-    const colHeight=topLevel*storeyHt;
+    const colHeight=topLevel*storeyHt + (extraTallCols.has(col.t)?extraHeight:0);
     const shade=0.86+(Math.sin(col.X*1.7+col.Z)*0.5+0.5)*0.14;
     const mat=new TH.MeshStandardMaterial({color:new TH.Color('#b9b3a4').multiplyScalar(shade),roughness:.82,metalness:.02});
     const m=new TH.Mesh(new TH.BoxGeometry(col.sx,colHeight,col.sz),mat);
@@ -429,6 +434,32 @@ function buildStructure(){
       }
     }
   }
+
+  // elevator cabin (centered between A4,B4,A6,B6) — created per-build so it follows layout
+  (function(){
+    const tags=['A4','B4','A6','B6'];
+    const cols=tags.map(t=>COLUMNS.find(c=>c.t===t));
+    if(cols.every(Boolean)){
+      const cx=cols.reduce((s,c)=>s+c.X,0)/cols.length;
+      const cz=cols.reduce((s,c)=>s+c.Z,0)/cols.length;
+      const cabW=2.6, cabH=3.2, cabD=2.6; // ft
+      const cab=new TH.Mesh(new TH.BoxGeometry(cabW,cabH,cabD),elevatorMat);
+      const baseY=cabH/2 + 0.2; // small clearance above ground
+      cab.position.set(cx, baseY, cz);
+      cab.castShadow=true; cab.receiveShadow=true;
+      cab.userData.baseY=baseY;
+      elevatorGroup.add(cab);
+      // animation extents: travel up to the highest column top (including any extra height)
+      elevatorGroup.userData.minY=baseY;
+      // compute tallest column top from columns just created
+      let tallestTop = storeys*storeyHt;
+      if(colGroup.children.length){
+        tallestTop = Math.max(...colGroup.children.map(m => m.userData.fullY*2));
+      }
+      elevatorGroup.userData.maxY = tallestTop - (cabH/2) - 0.5;
+      elevatorGroup.userData.period=8000; // ms for up+down cycle
+    }
+  })();
 
   // beams at each floor level (1..storeys, where storeys = roof)
   const byLetter={}, byRow={};
@@ -478,6 +509,16 @@ function stepReveal(now){
     const p=Math.max(0,Math.min(1,(now-reveal.t0-delay)/reveal.dur)); const e=1-Math.pow(1-p,3);
     m.scale.y=Math.max(0.001,e); m.position.y=m.userData.fullY*e; if(p<1) done=false; });
   if(done){ reveal=null; applyToggles(); }
+}
+
+// elevator animation: moves cabin(s) between minY and maxY using a ping-pong timing
+function stepElevator(now){
+  if(!elevatorGroup.children.length) return;
+  const p=elevatorGroup.userData;
+  if(!p || p.period===undefined) return;
+  const t=((now % p.period)/p.period)*2; const u = t>1 ? 2-t : t; // 0..1..0
+  const y = p.minY + u*(p.maxY - p.minY);
+  elevatorGroup.children.forEach(c=>{ c.position.y = c.userData.baseY + (y - p.minY); });
 }
 
 /* scale figure 5'-6" */
@@ -640,7 +681,7 @@ setView('iso');
 })();
 ctrl.theta=ctrl.dTheta;ctrl.phi=ctrl.dPhi;ctrl.radius=ctrl.dRadius;place();
 document.getElementById('loading').classList.add('hide');
-(function loop(now){requestAnimationFrame(loop);stepReveal(now);updateCtrl();renderer.render(scene,camera);})(performance.now());
+(function loop(now){requestAnimationFrame(loop);stepReveal(now);stepElevator(now);updateCtrl();renderer.render(scene,camera);})(performance.now());
 })();
 </script>
 </body>
