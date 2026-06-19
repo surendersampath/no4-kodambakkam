@@ -310,11 +310,13 @@ const tagGroup=new TH.Group(); scene.add(tagGroup);
 const beamGroup=new TH.Group(); scene.add(beamGroup);
 const floorGroup=new TH.Group(); scene.add(floorGroup);
 const roofGroup=new TH.Group(); scene.add(roofGroup);
+const roofHighlightGroup=new TH.Group(); scene.add(roofHighlightGroup);
 const levelGroup=new TH.Group(); scene.add(levelGroup);
 
 let storeyHt=10, storeys=4, firstBuild=true;
 const beamMat=new TH.MeshStandardMaterial({color:'#928c80',roughness:.85,metalness:.02});
 const roofMat=new TH.MeshStandardMaterial({color:'#a9a395',roughness:.9});
+const roofHighlightMat=new TH.MeshStandardMaterial({color:'#d63a3a',roughness:.7,transparent:true,opacity:0.65,emissive:'#8c2020',emissiveIntensity:0.18});
 const floorMat2=new TH.MeshStandardMaterial({color:'#6f8298',transparent:true,opacity:.34,roughness:.9});
 
 function makeBeam(ax,az,bx,bz,y,group){
@@ -351,7 +353,7 @@ function makeRoof(){
 }
 
 function buildStructure(){
-  [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,levelGroup].forEach(clear);
+  [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,roofHighlightGroup,levelGroup].forEach(clear);
   const H=storeyHt*storeys;
 
   // columns (full height, with truncation on 3rd floor for selected columns)
@@ -389,6 +391,10 @@ function buildStructure(){
     pl.position.set(0,lv*storeyHt,0); pl.receiveShadow=true; floorGroup.add(pl);
   }
   const roof=makeRoof(); roof.position.y=storeys*storeyHt; roofGroup.add(roof);
+  const highlightDepth=Math.abs(ROWY[1]-ROWY[0]);
+  const highlight=new TH.Mesh(new TH.BoxGeometry(SLAB_W+0.6,0.08,highlightDepth),roofHighlightMat);
+  highlight.position.set(0,storeys*storeyHt+0.22,(ROWY[0]+ROWY[1])/2-CZ);
+  highlight.castShadow=false; highlight.receiveShadow=false; roofHighlightGroup.add(highlight);
 
   // level labels at NW corner
   const ord=['STILT','1ST FLR','2ND FLR','3RD FLR','4TH FLR','5TH FLR'];
