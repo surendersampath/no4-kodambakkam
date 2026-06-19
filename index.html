@@ -373,8 +373,7 @@ function buildStructure(){
   // beams at each floor level (1..storeys, where storeys = roof)
   const byLetter={}, byRow={};
   COLUMNS.forEach(c=>{ (byLetter[c.letter]=byLetter[c.letter]||[]).push(c); (byRow[c.row]=byRow[c.row]||[]).push(c); });
-  for(let lv=1; lv<=storeys; lv++){
-    if(lv===storeys-1) continue; // remove 3rd-floor beams so no mid-air hanging line remains
+  for(let lv=1; lv<storeys; lv++){
     const y=lv*storeyHt;
     Object.values(byLetter).forEach(arr=>{
       const a=arr.filter(c=> (roofRemovedCols.has(c.t)?3:storeys) >= lv).slice().sort((p,q)=>p.Z-q.Z);
