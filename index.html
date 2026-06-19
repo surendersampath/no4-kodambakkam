@@ -388,7 +388,7 @@ function buildStructure(){
   // columns (full height, with truncation on 3rd floor for selected columns)
   const roofRemovedCols=new Set(['A1','C1','D1']);
   // columns that should extend an extra 10 ft above the roof
-  const extraTallCols=new Set(['A4','A6','B4','B6','A8','C8']);
+  const extraTallCols=new Set(['A4','A6','B4','B6','A8','C8','C7']);
   const extraHeight = 10; // ft beyond roof
   COLUMNS.forEach(col=>{
     const topLevel=roofRemovedCols.has(col.t)?3:storeys;
