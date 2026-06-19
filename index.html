@@ -101,7 +101,7 @@
 </head>
 <body>
 <div id="app"></div>
-<div class="loading" id="loading">BUILDING STRUCTURE…</div>
+<div class="loading" id="loading">No 4, Kodambakkam . . .</div>
 
 <div class="titlecard">
   <div class="eyebrow">Drawing M-101 · R0</div>
@@ -325,30 +325,65 @@ function makeBeam(ax,az,bx,bz,y,group){
 }
 function clear(g){while(g.children.length)g.remove(g.children[0]);}
 
+const roofCutouts=[
+  {x:0, z:(ROWY[0]+ROWY[1])/2-CZ, w:SLAB_W+0.6, d:Math.abs(ROWY[1]-ROWY[0])}
+];
+function makeRoof(){
+  const holes=roofCutouts;
+  const x0=-SLAB_W/2-0.3, x1=SLAB_W/2+0.3, z0=-SLAB_D/2-0.3, z1=SLAB_D/2+0.3;
+  const xs=[x0], zs=[z0];
+  holes.forEach(h=>{ xs.push(h.x-h.w/2, h.x+h.w/2); zs.push(h.z-h.d/2, h.z+h.d/2); });
+  xs.push(x1); zs.push(z1); xs.sort((a,b)=>a-b); zs.sort((a,b)=>a-b);
+
+  const roof=new TH.Group();
+  for(let ix=0; ix<xs.length-1; ix++){
+    for(let iz=0; iz<zs.length-1; iz++){
+      const xa=xs[ix], xb=xs[ix+1], za=zs[iz], zb=zs[iz+1];
+      const overlaps=holes.some(h=> xa < h.x + h.w/2 && xb > h.x - h.w/2 && za < h.z + h.d/2 && zb > h.z - h.d/2 );
+      if(overlaps) continue;
+      const w=xb-xa, d=zb-za;
+      if(w<0.01||d<0.01) continue;
+      const box=new TH.Mesh(new TH.BoxGeometry(w,0.4,d),roofMat);
+      box.position.set((xa+xb)/2,0,(za+zb)/2);
+      box.castShadow=true; box.receiveShadow=true;
+      roof.add(box);
+    }
+  }
+  return roof;
+}
+
 function buildStructure(){
   [colGroup,tagGroup,beamGroup,floorGroup,roofGroup,levelGroup].forEach(clear);
   const H=storeyHt*storeys;
 
-  // columns (full height)
+  // columns (full height, with truncation on 3rd floor for selected columns)
+  const roofRemovedCols=new Set(['A1','C1','D1']);
   COLUMNS.forEach(col=>{
+    const topLevel=roofRemovedCols.has(col.t)?3:storeys;
+    const colHeight=topLevel*storeyHt;
     const shade=0.86+(Math.sin(col.X*1.7+col.Z)*0.5+0.5)*0.14;
     const mat=new TH.MeshStandardMaterial({color:new TH.Color('#b9b3a4').multiplyScalar(shade),roughness:.82,metalness:.02});
-    const m=new TH.Mesh(new TH.BoxGeometry(col.sx,H,col.sz),mat);
-    m.position.set(col.X,H/2,col.Z); m.castShadow=true; m.receiveShadow=true;
-    m.userData.col=col; m.userData.baseEmissive=0x000000; m.userData.fullY=H/2;
+    const m=new TH.Mesh(new TH.BoxGeometry(col.sx,colHeight,col.sz),mat);
+    m.position.set(col.X,colHeight/2,col.Z); m.castShadow=true; m.receiveShadow=true;
+    m.userData.col=col; m.userData.baseEmissive=0x000000; m.userData.fullY=colHeight/2;
     colGroup.add(m);
-    const tg=makeSprite(col.t,'tag'); tg.scale.set(2.2,1.0,1); tg.position.set(col.X,H+1.4,col.Z); tagGroup.add(tg);
+    const tg=makeSprite(col.t,'tag'); tg.scale.set(2.2,1.0,1); tg.position.set(col.X,colHeight+1.4,col.Z); tagGroup.add(tg);
   });
 
   // beams at each floor level (1..storeys, where storeys = roof)
   const byLetter={}, byRow={};
   COLUMNS.forEach(c=>{ (byLetter[c.letter]=byLetter[c.letter]||[]).push(c); (byRow[c.row]=byRow[c.row]||[]).push(c); });
   for(let lv=1; lv<=storeys; lv++){
+    if(lv===storeys-1) continue; // remove 3rd-floor beams so no mid-air hanging line remains
     const y=lv*storeyHt;
-    Object.values(byLetter).forEach(arr=>{ const a=arr.slice().sort((p,q)=>p.Z-q.Z);
-      for(let i=0;i<a.length-1;i++) makeBeam(a[i].X,a[i].Z,a[i+1].X,a[i+1].Z,y,beamGroup); });
-    Object.values(byRow).forEach(arr=>{ const a=arr.slice().sort((p,q)=>p.X-q.X);
-      for(let i=0;i<a.length-1;i++) makeBeam(a[i].X,a[i].Z,a[i+1].X,a[i+1].Z,y,beamGroup); });
+    Object.values(byLetter).forEach(arr=>{
+      const a=arr.filter(c=> (roofRemovedCols.has(c.t)?3:storeys) >= lv).slice().sort((p,q)=>p.Z-q.Z);
+      for(let i=0;i<a.length-1;i++) makeBeam(a[i].X,a[i].Z,a[i+1].X,a[i+1].Z,y,beamGroup);
+    });
+    Object.values(byRow).forEach(arr=>{
+      const a=arr.filter(c=> (roofRemovedCols.has(c.t)?3:storeys) >= lv).slice().sort((p,q)=>p.X-q.X);
+      for(let i=0;i<a.length-1;i++) makeBeam(a[i].X,a[i].Z,a[i+1].X,a[i+1].Z,y,beamGroup);
+    });
   }
 
   // floor plates (1..storeys-1) + roof slab (storeys)
@@ -356,8 +391,7 @@ function buildStructure(){
     const pl=new TH.Mesh(new TH.BoxGeometry(SLAB_W,0.16,SLAB_D),floorMat2);
     pl.position.set(0,lv*storeyHt,0); pl.receiveShadow=true; floorGroup.add(pl);
   }
-  const roof=new TH.Mesh(new TH.BoxGeometry(SLAB_W+0.6,0.4,SLAB_D+0.6),roofMat);
-  roof.position.set(0,storeys*storeyHt,0); roof.castShadow=true; roof.receiveShadow=true; roofGroup.add(roof);
+  const roof=makeRoof(); roof.position.y=storeys*storeyHt; roofGroup.add(roof);
 
   // level labels at NW corner
   const ord=['STILT','1ST FLR','2ND FLR','3RD FLR','4TH FLR','5TH FLR'];
