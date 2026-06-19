@@ -626,6 +626,18 @@ window.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.classList.remov
 window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 buildStructure();
 setView('iso');
+
+// Add ground label "LIFT" centered between columns A4, B4, A6, B6
+(function(){
+  const tags=['A4','B4','A6','B6'];
+  const cols=tags.map(t=>COLUMNS.find(c=>c.t===t));
+  if(cols.every(Boolean)){
+    const cx=cols.reduce((s,c)=>s+c.X,0)/cols.length;
+    const cz=cols.reduce((s,c)=>s+c.Z,0)/cols.length;
+    // use the big (bold) text slot and a larger plane size for stronger emphasis
+    groundText('LIFT','', cx, cz, 0, 6);
+  }
+})();
 ctrl.theta=ctrl.dTheta;ctrl.phi=ctrl.dPhi;ctrl.radius=ctrl.dRadius;place();
 document.getElementById('loading').classList.add('hide');
 (function loop(now){requestAnimationFrame(loop);stepReveal(now);updateCtrl();renderer.render(scene,camera);})(performance.now());
